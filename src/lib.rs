@@ -1,8 +1,10 @@
 #![no_std]
 #![feature(llvm_asm)]
+#![feature(extended_key_value_attributes)]
 
 macro_rules! sysreg_read_func {
     ( $name: ident, $t: tt ) => {
+        #[doc=concat!("Read value from register ", $t)]
         pub fn $name() -> u64 {
             let mut v: u64;
             unsafe {
@@ -17,6 +19,7 @@ macro_rules! sysreg_read_func {
 
 macro_rules! sysreg_write_func {
     ( $name: ident, $t: tt) => {
+        #[doc=concat!("Write value to register ", $t)]
         pub fn $name(v: u64) {
             unsafe {
                 llvm_asm!(concat!("msr ", $t, ", $0")
