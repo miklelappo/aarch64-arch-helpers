@@ -3,6 +3,7 @@
 #![feature(asm)]
 #![feature(extended_key_value_attributes)]
 #![allow(non_snake_case)]
+#![allow(unused_macros)]
 
 macro_rules! sysreg_read_func {
     ( $name: ident, $reg_name: tt ) => {
@@ -77,6 +78,21 @@ macro_rules! sysop_type_param_func {
     };
 }
 
+/// Write constant in range of 0..16 to system register
+macro_rules! sysreg_write_const {
+    ( $name: ident, $reg_name: tt) => {
+        macro_rules! $name {
+            ($val: expr) => {
+                unsafe {
+                    llvm_asm!(concat!("msr ", $reg_name, ", $0")
+                        :
+                        : "r"($val));
+                }
+            }
+        }
+    }
+}
+
 sysop_type_func!(tlbi_alle1, "tlbi", "alle1");
 sysop_type_func!(tlbi_alle1is, "tlbi", "alle1is");
 sysop_type_func!(tlbi_alle2, "tlbi", "alle2");
@@ -113,8 +129,10 @@ sysop_type_param_func!(at_s12e0w, "at", "s12e0w");
 sysop_type_param_func!(at_s1e2r, "at", "s1e2r");
 
 // Misc accessor prototype
-//sysreg_write_func!(write_daifclr, "daifclr");
-//sysreg_write_func!(write_daifset, "daifset");
+#[macro_export]
+sysreg_write_const!(write_daifclr, "daifclr");
+#[macro_export]
+sysreg_write_const!(write_daifset, "daifset");
 sysreg_read_func!(read_par_el1, "par_el1");
 sysreg_read_func!(read_id_pfr1_el1, "id_pfr1_el1");
 sysreg_read_func!(read_id_aa64pfr0_el1, "id_aa64pfr0_el1");
