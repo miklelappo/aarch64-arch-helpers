@@ -54,20 +54,22 @@ macro_rules! sysop_func {
 
 /// Define function for system instruction with type specifier
 macro_rules! sysop_type_func {
-    ( $fname: ident, $op: tt, $op_type: tt) => {
-        #[doc=concat!("Call ", $op, "with type ", $op_type)]
+    ( $fname: ident, $op: tt, $op_type: tt, $desc: tt) => {
+        #[doc = concat!("Call ", $op, " with type ", $op_type, "
+
+        ", $desc)]
         pub fn $fname() {
             unsafe {
                 asm!(concat!($op, " ", $op_type));
             }
         }
-    };
+    }
 }
 
 /// Define function for system instruction with register parameter
 macro_rules! sysop_type_param_func {
     ( $fname: ident, $op: tt, $op_type: tt) => {
-        #[doc=concat!("Call ", $op, "with type ", $op_type)]
+        #[doc=concat!("Call ", $op, " with type ", $op_type)]
         pub fn $fname(v: u64) {
             unsafe {
                 llvm_asm!(concat!($op, " ", $op_type, ", $0")
@@ -93,15 +95,15 @@ macro_rules! sysreg_write_const {
     }
 }
 
-sysop_type_func!(tlbi_alle1, "tlbi", "alle1");
-sysop_type_func!(tlbi_alle1is, "tlbi", "alle1is");
-sysop_type_func!(tlbi_alle2, "tlbi", "alle2");
-sysop_type_func!(tlbi_alle2is, "tlbi", "alle2is");
+sysop_type_func!(tlbi_alle1, "tlbi", "alle1", "Invalidate all stage 1 translations used at EL1");
+sysop_type_func!(tlbi_alle1is, "tlbi", "alle1is", "Invalidate all stage 1 translations used at EL1, Inner Shareable");
+sysop_type_func!(tlbi_alle2, "tlbi", "alle2", "Invalidate all stage 1 translations used at EL2");
+sysop_type_func!(tlbi_alle2is, "tlbi", "alle2is", "Invalidate all stage 1 translations used at EL2, Inner Shareable");
 #[cfg(not(feature = "errata_a57_813419"))]
-sysop_type_func!(tlbi_alle3, "tlbi", "alle3");
+sysop_type_func!(tlbi_alle3, "tlbi", "alle3", "Invalidate all stage 1 translations used at EL3");
 #[cfg(not(feature = "errata_a57_813419"))]
-sysop_type_func!(tlbi_alle3is, "tlbi", "alle3is");
-sysop_type_func!(tlbi_vmalle1, "tlbi", "vmalle1");
+sysop_type_func!(tlbi_alle3is, "tlbi", "alle3is", "Invalidate all stage 1 translations used at EL3, Inner Shareable");
+sysop_type_func!(tlbi_vmalle1, "tlbi", "vmalle1", "Invalidate all stage 1 translations used at EL1 with the current VMID");
 sysop_type_param_func!(tlbi_vaae1is, "tlbi", "vaae1is");
 sysop_type_param_func!(tlbi_vaale1is, "tlbi", "vaale1is");
 sysop_type_param_func!(tlbi_vae2is, "tlbi", "vae2is");
@@ -150,15 +152,15 @@ sysop_func!(wfi, "wfi");
 sysop_func!(wfe, "wfe");
 sysop_func!(sev, "sev");
 
-sysop_type_func!(dsb_sy, "dsb", "sy");
-sysop_type_func!(dmb_sy, "dmb", "sy");
-sysop_type_func!(dmb_st, "dmb", "st");
-sysop_type_func!(dmb_ld, "dmb", "ld");
-sysop_type_func!(dsb_ish, "dsb", "ish");
-sysop_type_func!(dsb_nsh, "dsb", "nsh");
-sysop_type_func!(dsb_ishst, "dsb", "ishst");
-sysop_type_func!(dmb_ish, "dmb", "ish");
-sysop_type_func!(dmb_ishst, "dmb", "ishst");
+sysop_type_func!(dsb_sy, "dsb", "sy", "Full system DSB operation");
+sysop_type_func!(dmb_sy, "dmb", "sy", "Full system DMB operation");
+sysop_type_func!(dmb_st, "dmb", "st", "DMB operation that waits only for stores to complete");
+sysop_type_func!(dmb_ld, "dmb", "ld", "DMB operation that waits only for loads to complete");
+sysop_type_func!(dsb_ish, "dsb", "ish", "DSB operation only to the inner shareable domain");
+sysop_type_func!(dsb_nsh, "dsb", "nsh", "DSB operation only out to the point of unification");
+sysop_type_func!(dsb_ishst, "dsb", "ishst", "DSB operation that waits only for stores to complete, and only to the inner shareable domain");
+sysop_type_func!(dmb_ish, "dmb", "ish", "DMB operation only to the inner shareable domain");
+sysop_type_func!(dmb_ishst, "dmb", "ishst", "DMB operation that waits only for stores to complete, and only to the inner shareable domain");
 
 sysop_func!(isb, "isb");
 
