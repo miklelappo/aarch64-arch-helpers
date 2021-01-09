@@ -42,11 +42,11 @@ macro_rules! sysreg_rw_func {
 
 /// Define function for simple system instruction
 macro_rules! sysop_func {
-    ( $fname: ident, $op: tt ) => {
-        #[doc=concat!("Call ", $op)]
+    ( $fname: ident ) => {
+        #[doc=concat!("Call ", stringify!($fname))]
         pub fn $fname() {
             unsafe {
-                asm!($op);
+                asm!(stringify!($fname));
             }
         }
     };
@@ -148,9 +148,9 @@ sysreg_rw_func!(read_elr_el1, write_elr_el1, "elr_el1");
 sysreg_rw_func!(read_elr_el2, write_elr_el2, "elr_el2");
 sysreg_rw_func!(read_elr_el3, write_elr_el3, "elr_el3");
 
-sysop_func!(wfi, "wfi");
-sysop_func!(wfe, "wfe");
-sysop_func!(sev, "sev");
+sysop_func!(wfi);
+sysop_func!(wfe);
+sysop_func!(sev);
 
 sysop_type_func!(dsb_sy, "dsb", "sy", "Full system DSB operation");
 sysop_type_func!(dmb_sy, "dmb", "sy", "Full system DMB operation");
@@ -162,7 +162,7 @@ sysop_type_func!(dsb_ishst, "dsb", "ishst", "DSB operation that waits only for s
 sysop_type_func!(dmb_ish, "dmb", "ish", "DMB operation only to the inner shareable domain");
 sysop_type_func!(dmb_ishst, "dmb", "ishst", "DMB operation that waits only for stores to complete, and only to the inner shareable domain");
 
-sysop_func!(isb, "isb");
+sysop_func!(isb);
 
 // System register accessor prototypes
 sysreg_read_func!(read_midr_el1, "midr_el1");
