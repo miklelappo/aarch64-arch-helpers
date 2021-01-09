@@ -259,4 +259,40 @@ sysreg_rw_func!(read_hstr_el2, write_hstr_el2, "hstr_el2", "Hypervisor System Tr
 sysreg_rw_func!(read_cnthp_ctl_el2, write_cnthp_ctl_el2, "cnthp_ctl_el2", "Counter-timer Hypervisor Physical Timer Control register");
 sysreg_rw_func!(read_pmcr_el0, write_pmcr_el0, "pmcr_el0", "Performance Monitors Control Register");
 
-//TODO: dcache functions, dcsw functions, mmu disabling functions, get_afflvl_shift, mpidr_mask_lower_afflvls, eret, smc
+//TODO: dcache functions, dcsw functions, get_afflvl_shift, mpidr_mask_lower_afflvls, eret, smc
+
+const SCTLR_M_BIT: u64 = 1 << 0;
+const SCTLR_C_BIT: u64 = 1 << 2;
+const SCTLR_I_BIT: u64 = 1 << 12;
+
+pub fn disable_mmu_el1() {
+    let mut v = read_sctlr_el1();
+    v &= !(SCTLR_M_BIT | SCTLR_C_BIT);
+    write_sctlr_el1(v);
+    isb();
+    dsb_sy();
+}
+
+pub fn disable_mmu_icache_el1() {
+    let mut v = read_sctlr_el1();
+    v &= !(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT);
+    write_sctlr_el1(v);
+    isb();
+    dsb_sy();
+}
+
+pub fn disable_mmu_el3() {
+    let mut v = read_sctlr_el3();
+    v &= !(SCTLR_M_BIT | SCTLR_C_BIT);
+    write_sctlr_el3(v);
+    isb();
+    dsb_sy();
+}
+
+pub fn disable_mmu_icache_el3() {
+    let mut v = read_sctlr_el3();
+    v &= !(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT);
+    write_sctlr_el3(v);
+    isb();
+    dsb_sy();
+}
