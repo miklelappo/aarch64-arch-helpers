@@ -259,7 +259,34 @@ sysreg_rw_func!(read_hstr_el2, write_hstr_el2, "hstr_el2", "Hypervisor System Tr
 sysreg_rw_func!(read_cnthp_ctl_el2, write_cnthp_ctl_el2, "cnthp_ctl_el2", "Counter-timer Hypervisor Physical Timer Control register");
 sysreg_rw_func!(read_pmcr_el0, write_pmcr_el0, "pmcr_el0", "Performance Monitors Control Register");
 
-//TODO: dcache functions, dcsw functions
+//TODO: dcsw functions
+
+fn dcache_line_size() -> u64 {
+    let ctr_el0 = read_ctr_el0();
+    4 << ((ctr_el0 >> 16) & ((1 << 4) - 1))
+}
+
+macro_rules! dcache_range_func {
+    ($name: ident, $op: ident) => {
+        pub fn $name(mut addr: u64, size: u64) {
+            if size != 0 {
+                let line_size = dcache_line_size();
+                let end = addr + size;
+                addr &= !(line_size - 1);
+                while addr < end {
+                    $op(addr);
+                    addr += line_size;
+                }
+                dsb_sy();
+            }
+        }
+    };
+}
+
+dcache_range_func!(flush_dcache_range, dc_civac);
+dcache_range_func!(clean_dcache_range, dc_cvac);
+dcache_range_func!(inv_dcache_range, dc_ivac);
+
 
 const SCTLR_M_BIT: u64 = 1 << 0;
 const SCTLR_C_BIT: u64 = 1 << 2;
