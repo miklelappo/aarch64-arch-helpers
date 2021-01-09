@@ -259,7 +259,7 @@ sysreg_rw_func!(read_hstr_el2, write_hstr_el2, "hstr_el2", "Hypervisor System Tr
 sysreg_rw_func!(read_cnthp_ctl_el2, write_cnthp_ctl_el2, "cnthp_ctl_el2", "Counter-timer Hypervisor Physical Timer Control register");
 sysreg_rw_func!(read_pmcr_el0, write_pmcr_el0, "pmcr_el0", "Performance Monitors Control Register");
 
-//TODO: dcache functions, dcsw functions, get_afflvl_shift, mpidr_mask_lower_afflvls
+//TODO: dcache functions, dcsw functions
 
 const SCTLR_M_BIT: u64 = 1 << 0;
 const SCTLR_C_BIT: u64 = 1 << 2;
@@ -295,6 +295,22 @@ pub fn disable_mmu_icache_el3() {
     write_sctlr_el3(v);
     isb();
     dsb_sy();
+}
+
+const MPIDR_AFFLVL_SHIFT: u32 = 3;
+pub fn mpidr_mask_lower_afflvls(mut x0: u64, mut x1: u32) -> u32 {
+    if x1 == 3 {
+        x1 += 1;
+    }
+    let shift = x1 << MPIDR_AFFLVL_SHIFT;
+    x0 = x0 >> shift;
+    (x0 << shift) as u32
+}
+pub fn get_afflvl_shift(mut x0: u32) -> u32 {
+    if x0 == 3 {
+        x0 += 1;
+    }
+    x0 << MPIDR_AFFLVL_SHIFT
 }
 
 pub fn smc() {
