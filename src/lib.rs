@@ -259,7 +259,7 @@ sysreg_rw_func!(read_hstr_el2, write_hstr_el2, "hstr_el2", "Hypervisor System Tr
 sysreg_rw_func!(read_cnthp_ctl_el2, write_cnthp_ctl_el2, "cnthp_ctl_el2", "Counter-timer Hypervisor Physical Timer Control register");
 sysreg_rw_func!(read_pmcr_el0, write_pmcr_el0, "pmcr_el0", "Performance Monitors Control Register");
 
-//TODO: dcache functions, dcsw functions, get_afflvl_shift, mpidr_mask_lower_afflvls, eret, smc
+//TODO: dcache functions, dcsw functions, get_afflvl_shift, mpidr_mask_lower_afflvls
 
 const SCTLR_M_BIT: u64 = 1 << 0;
 const SCTLR_C_BIT: u64 = 1 << 2;
@@ -295,4 +295,16 @@ pub fn disable_mmu_icache_el3() {
     write_sctlr_el3(v);
     isb();
     dsb_sy();
+}
+
+pub fn smc() {
+    unsafe {
+        asm!("smc #0");
+    };
+}
+
+pub fn eret() {
+    unsafe {
+        asm!("eret");
+    };
 }
