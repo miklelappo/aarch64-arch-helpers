@@ -11,6 +11,7 @@
 macro_rules! sysreg_read_func {
     ( $name: ident, $reg_name: tt, $desc: tt ) => {
         #[doc=concat!("Read value from register ", $reg_name)]
+        #[cfg(target_arch = "aarch64")]
         pub fn $name() -> u64 {
             let mut v: u64;
             unsafe {
@@ -26,6 +27,7 @@ macro_rules! sysreg_read_func {
 macro_rules! sysreg_write_func {
     ( $name: ident, $reg_name: tt, $desc: tt) => {
         #[doc=concat!("Write value to register ", $reg_name)]
+        #[cfg(target_arch = "aarch64")]
         pub fn $name(v: u64) {
             unsafe {
                 llvm_asm!(concat!("msr ", $reg_name, ", $0")
@@ -47,6 +49,7 @@ macro_rules! sysreg_rw_func {
 macro_rules! sysop_func {
     ( $fname: ident ) => {
         #[doc=concat!("Call ", stringify!($fname))]
+        #[cfg(target_arch = "aarch64")]
         pub fn $fname() {
             unsafe {
                 asm!(stringify!($fname));
@@ -61,6 +64,7 @@ macro_rules! sysop_type_func {
         #[doc = concat!("Call ", $op, " with type ", $op_type, "
 
         ", $desc)]
+        #[cfg(target_arch = "aarch64")]
         pub fn $fname() {
             unsafe {
                 asm!(concat!($op, " ", $op_type));
@@ -75,6 +79,7 @@ macro_rules! sysop_type_param_func {
         #[doc=concat!("Call ", $op, " with type ", $op_type, "
 
         ", $desc)]
+        #[cfg(target_arch = "aarch64")]
         pub fn $fname(v: u64) {
             unsafe {
                 llvm_asm!(concat!($op, " ", $op_type, ", $0")
@@ -264,6 +269,7 @@ sysreg_rw_func!(read_pmcr_el0, write_pmcr_el0, "pmcr_el0", "Performance Monitors
 
 //TODO: dcsw functions
 
+#[cfg(target_arch = "aarch64")]
 fn dcache_line_size() -> u64 {
     let ctr_el0 = read_ctr_el0();
     4 << ((ctr_el0 >> 16) & ((1 << 4) - 1))
@@ -272,6 +278,7 @@ fn dcache_line_size() -> u64 {
 macro_rules! dcache_range_func {
     ( $name: ident, $op: ident, $desc: tt ) => {
         #[doc=$desc]
+        #[cfg(target_arch = "aarch64")]
         pub fn $name(mut addr: u64, size: u64) {
             if size != 0 {
                 let line_size = dcache_line_size();
@@ -297,6 +304,7 @@ const SCTLR_C_BIT: u64 = 1 << 2;
 const SCTLR_I_BIT: u64 = 1 << 12;
 
 /// Disable MMU and Data Cache (EL1)
+#[cfg(target_arch = "aarch64")]
 pub fn disable_mmu_el1() {
     let mut v = read_sctlr_el1();
     v &= !(SCTLR_M_BIT | SCTLR_C_BIT);
@@ -306,6 +314,7 @@ pub fn disable_mmu_el1() {
 }
 
 /// Disable instruction cache (EL1)
+#[cfg(target_arch = "aarch64")]
 pub fn disable_mmu_icache_el1() {
     let mut v = read_sctlr_el1();
     v &= !(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT);
@@ -315,6 +324,7 @@ pub fn disable_mmu_icache_el1() {
 }
 
 /// Disable MMU and Data Cache (EL3)
+#[cfg(target_arch = "aarch64")]
 pub fn disable_mmu_el3() {
     let mut v = read_sctlr_el3();
     v &= !(SCTLR_M_BIT | SCTLR_C_BIT);
@@ -324,6 +334,7 @@ pub fn disable_mmu_el3() {
 }
 
 /// Disable instruction cache (EL3)
+#[cfg(target_arch = "aarch64")]
 pub fn disable_mmu_icache_el3() {
     let mut v = read_sctlr_el3();
     v &= !(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT);
@@ -333,6 +344,7 @@ pub fn disable_mmu_icache_el3() {
 }
 
 /// Secure Monitor Call causes an exception to EL3.
+#[cfg(target_arch = "aarch64")]
 pub fn smc() {
     unsafe {
         asm!("smc #0");
@@ -340,6 +352,7 @@ pub fn smc() {
 }
 
 /// Exception Return using the ELR and SPSR for the current Exception level
+#[cfg(target_arch = "aarch64")]
 pub fn eret() {
     unsafe {
         asm!("eret");
@@ -348,6 +361,7 @@ pub fn eret() {
 
 ///Check if an EL is implemented from AA64PFR0 register fields.
 ///'el' argument must be one of 1, 2 or 3.
+#[cfg(target_arch = "aarch64")]
 pub fn el_implemented(el: u8) -> bool {
     let shift = match el {
         0 => return true,
@@ -362,52 +376,62 @@ pub fn el_implemented(el: u8) -> bool {
 // Previously defined accesor functions with incomplete register names
 
 /// Read current exception level
+#[cfg(target_arch = "aarch64")]
 pub fn read_current_el() -> u64 {
     read_CurrentEl()
 }
 
 /// Data Synchronization Barrier
 /// No instruction in program order after this instruction executes until this instruction completes.
+#[cfg(target_arch = "aarch64")]
 pub fn dsb() {
     dsb_sy()
 }
 
 /// Read Main ID Register
+#[cfg(target_arch = "aarch64")]
 pub fn read_midr() -> u64 {
     read_midr_el1()
 }
 
 /// Read Multiprocessor Affinity Register
+#[cfg(target_arch = "aarch64")]
 pub fn read_mpidr() -> u64 {
     read_mpidr_el1()
 }
 
 /// Read Secure Configuration Register
+#[cfg(target_arch = "aarch64")]
 pub fn read_scr() -> u64 {
     read_scr_el3()
 }
 
 /// Write Secure Configuration Register
+#[cfg(target_arch = "aarch64")]
 pub fn write_scr(v: u64) {
     write_scr_el3(v)
 }
 
 /// Read Hypervisor Configuration Register
+#[cfg(target_arch = "aarch64")]
 pub fn read_hcr() -> u64 {
     read_hcr_el2()
 }
 
 /// Write Hypervisor Configuration Register
+#[cfg(target_arch = "aarch64")]
 pub fn write_hcr(v: u64) {
     write_hcr_el2(v)
 }
 
 ///Read Architectural Feature Access Control Register
+#[cfg(target_arch = "aarch64")]
 pub fn read_cpacr() -> u64 {
     read_cpacr_el1()
 }
 
 ///Write Architectural Feature Access Control Register
+#[cfg(target_arch = "aarch64")]
 pub fn write_cpacr(v: u64) {
     write_cpacr_el1(v)
 }
