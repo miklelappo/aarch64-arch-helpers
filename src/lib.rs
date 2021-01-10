@@ -351,3 +351,58 @@ pub fn eret() {
         asm!("eret");
     };
 }
+
+///Check if an EL is implemented from AA64PFR0 register fields.
+///'el' argument must be one of 1, 2 or 3.
+pub fn el_implemented(el: u8) -> bool {
+    let shift = match el {
+        0 => return true,
+        1 => 4,
+        2 => 8,
+        3 => 12,
+        _ => panic!("Wrong EL"),
+    };
+    ((read_id_aa64dfr0_el1() >> shift) & 0xF) != 0
+}
+
+// Previously defined accesor functions with incomplete register names
+
+pub fn read_current_el() -> u64 {
+    read_CurrentEl()
+}
+
+pub fn dsb() {
+    dsb_sy()
+}
+
+pub fn read_midr() -> u64 {
+    read_midr_el1()
+}
+
+pub fn read_mpidr() -> u64 {
+    read_mpidr_el1()
+}
+
+pub fn read_scr() -> u64 {
+    read_scr_el3()
+}
+
+pub fn write_scr(v: u64) {
+    write_scr_el3(v)
+}
+
+pub fn read_hcr() -> u64 {
+    read_hcr_el2()
+}
+
+pub fn write_hcr(v: u64) {
+    write_hcr_el2(v)
+}
+
+pub fn read_cpacr() -> u64 {
+    read_cpacr_el1()
+}
+
+pub fn write_cpacr(v: u64) {
+    write_cpacr_el1(v)
+}
