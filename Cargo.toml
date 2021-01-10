@@ -6,6 +6,7 @@ description = """
 Helper functions to access aarch64 CPU registers
 """
 license = "MIT"
+homepage = "https://github.com/miklelappo/aarch64-arch-helpers"
 repository = "https://github.com/miklelappo/aarch64-arch-helpers"
 documentation = "https://docs.rs/aarch64-arch-helpers/||VERSION||"
 readme = "README.md"

@@ -1,0 +1,17 @@
+language: rust
+rust:
+  - nightly
+os:
+  - linux
+  - osx
+
+before_script:
+  - rustup target add aarch64-linux-android
+  - rustup target add aarch64-unknown-none
+
+script:
+  - cargo check --target=aarch64-linux-android
+  - cargo check --target=aarch64-unknown-none
+  - cargo build --target=aarch64-linux-android
+  - cargo build --target=aarch64-unknown-none
+  - cargo doc
