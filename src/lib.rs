@@ -1,9 +1,12 @@
+//! AARCH64 helpers to access system registers, control cache, barrier
+
 #![no_std]
 #![feature(llvm_asm)]
 #![feature(asm)]
 #![feature(extended_key_value_attributes)]
 #![allow(non_snake_case)]
 #![allow(unused_macros)]
+#![deny(missing_docs)]
 
 macro_rules! sysreg_read_func {
     ( $name: ident, $reg_name: tt, $desc: tt ) => {
@@ -267,7 +270,8 @@ fn dcache_line_size() -> u64 {
 }
 
 macro_rules! dcache_range_func {
-    ($name: ident, $op: ident) => {
+    ( $name: ident, $op: ident, $desc: tt ) => {
+        #[doc=$desc]
         pub fn $name(mut addr: u64, size: u64) {
             if size != 0 {
                 let line_size = dcache_line_size();
@@ -283,15 +287,16 @@ macro_rules! dcache_range_func {
     };
 }
 
-dcache_range_func!(flush_dcache_range, dc_civac);
-dcache_range_func!(clean_dcache_range, dc_cvac);
-dcache_range_func!(inv_dcache_range, dc_ivac);
+dcache_range_func!(flush_dcache_range, dc_civac, "Flush dcache range");
+dcache_range_func!(clean_dcache_range, dc_cvac, "Clean dcache range");
+dcache_range_func!(inv_dcache_range, dc_ivac, "Invalidate dcache range");
 
 
 const SCTLR_M_BIT: u64 = 1 << 0;
 const SCTLR_C_BIT: u64 = 1 << 2;
 const SCTLR_I_BIT: u64 = 1 << 12;
 
+/// Disable MMU and Data Cache (EL1)
 pub fn disable_mmu_el1() {
     let mut v = read_sctlr_el1();
     v &= !(SCTLR_M_BIT | SCTLR_C_BIT);
@@ -300,6 +305,7 @@ pub fn disable_mmu_el1() {
     dsb_sy();
 }
 
+/// Disable instruction cache (EL1)
 pub fn disable_mmu_icache_el1() {
     let mut v = read_sctlr_el1();
     v &= !(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT);
@@ -308,6 +314,7 @@ pub fn disable_mmu_icache_el1() {
     dsb_sy();
 }
 
+/// Disable MMU and Data Cache (EL3)
 pub fn disable_mmu_el3() {
     let mut v = read_sctlr_el3();
     v &= !(SCTLR_M_BIT | SCTLR_C_BIT);
@@ -316,6 +323,7 @@ pub fn disable_mmu_el3() {
     dsb_sy();
 }
 
+/// Disable instruction cache (EL3)
 pub fn disable_mmu_icache_el3() {
     let mut v = read_sctlr_el3();
     v &= !(SCTLR_M_BIT | SCTLR_C_BIT | SCTLR_I_BIT);
@@ -324,28 +332,14 @@ pub fn disable_mmu_icache_el3() {
     dsb_sy();
 }
 
-const MPIDR_AFFLVL_SHIFT: u32 = 3;
-pub fn mpidr_mask_lower_afflvls(mut x0: u64, mut x1: u32) -> u32 {
-    if x1 == 3 {
-        x1 += 1;
-    }
-    let shift = x1 << MPIDR_AFFLVL_SHIFT;
-    x0 = x0 >> shift;
-    (x0 << shift) as u32
-}
-pub fn get_afflvl_shift(mut x0: u32) -> u32 {
-    if x0 == 3 {
-        x0 += 1;
-    }
-    x0 << MPIDR_AFFLVL_SHIFT
-}
-
+/// Secure Monitor Call causes an exception to EL3.
 pub fn smc() {
     unsafe {
         asm!("smc #0");
     };
 }
 
+/// Exception Return using the ELR and SPSR for the current Exception level
 pub fn eret() {
     unsafe {
         asm!("eret");
@@ -367,42 +361,53 @@ pub fn el_implemented(el: u8) -> bool {
 
 // Previously defined accesor functions with incomplete register names
 
+/// Read current exception level
 pub fn read_current_el() -> u64 {
     read_CurrentEl()
 }
 
+/// Data Synchronization Barrier
+/// No instruction in program order after this instruction executes until this instruction completes.
 pub fn dsb() {
     dsb_sy()
 }
 
+/// Read Main ID Register
 pub fn read_midr() -> u64 {
     read_midr_el1()
 }
 
+/// Read Multiprocessor Affinity Register
 pub fn read_mpidr() -> u64 {
     read_mpidr_el1()
 }
 
+/// Read Secure Configuration Register
 pub fn read_scr() -> u64 {
     read_scr_el3()
 }
 
+/// Write Secure Configuration Register
 pub fn write_scr(v: u64) {
     write_scr_el3(v)
 }
 
+/// Read Hypervisor Configuration Register
 pub fn read_hcr() -> u64 {
     read_hcr_el2()
 }
 
+/// Write Hypervisor Configuration Register
 pub fn write_hcr(v: u64) {
     write_hcr_el2(v)
 }
 
+///Read Architectural Feature Access Control Register
 pub fn read_cpacr() -> u64 {
     read_cpacr_el1()
 }
 
+///Write Architectural Feature Access Control Register
 pub fn write_cpacr(v: u64) {
     write_cpacr_el1(v)
 }
