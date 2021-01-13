@@ -1,7 +1,7 @@
 [package]
 name = "aarch64-arch-helpers"
 authors = ["Mikhail Lappo <miklelappo@gmail.com>"]
-version = "0.2.0-pre-alpha"
+version = "0.2.0"
 description = """
 Helper functions to access aarch64 CPU registers
 """
