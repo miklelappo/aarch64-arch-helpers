@@ -1,5 +1,6 @@
-use crate::sysop::*;
-use crate::sysreg::*;
+use crate::sysop::{dsb_sy, isb};
+use crate::sysreg::{read_sctlr_el1, read_sctlr_el3, write_sctlr_el1, write_sctlr_el3};
+
 const SCTLR_M_BIT: u64 = 1 << 0;
 const SCTLR_C_BIT: u64 = 1 << 2;
 const SCTLR_I_BIT: u64 = 1 << 12;

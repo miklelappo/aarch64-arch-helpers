@@ -1,5 +1,5 @@
-use crate::sysop::*;
-use crate::sysreg::*;
+use crate::sysop::{dc_civac, dc_cvac, dc_ivac, dsb_sy};
+use crate::sysreg::read_ctr_el0;
 
 macro_rules! dcache_range_func {
     ( $name: ident, $op: ident, $desc: tt ) => {
