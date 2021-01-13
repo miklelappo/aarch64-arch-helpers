@@ -40,6 +40,7 @@ pub fn eret() {
 }
 
 ///Check if an EL is implemented from AA64PFR0 register fields.
+///
 ///'el' argument must be one of 1, 2 or 3.
 #[cfg(target_arch = "aarch64")]
 pub fn el_implemented(el: u8) -> bool {
@@ -62,6 +63,7 @@ pub fn read_current_el() -> u64 {
 }
 
 /// Data Synchronization Barrier
+///
 /// No instruction in program order after this instruction executes until this instruction completes.
 #[cfg(target_arch = "aarch64")]
 pub fn dsb() {

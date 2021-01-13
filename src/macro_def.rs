@@ -1,6 +1,8 @@
 macro_rules! sysreg_read_func {
     ( $name: ident, $reg_name: tt, $desc: tt ) => {
-        #[doc=concat!("Read value from register ", $reg_name)]
+        #[doc=concat!("Read value from register ", $reg_name, "
+
+        ", $desc)]
         #[cfg(target_arch = "aarch64")]
         pub fn $name() -> u64 {
             let mut v: u64;
@@ -16,8 +18,10 @@ macro_rules! sysreg_read_func {
 
 macro_rules! sysreg_write_func {
     ( $name: ident, $reg_name: tt, $desc: tt) => {
-        #[doc=concat!("Write value to register ", $reg_name)]
         #[cfg(target_arch = "aarch64")]
+        #[doc=concat!("Write value to register ", $reg_name, "
+
+        ", $desc)]
         pub fn $name(v: u64) {
             unsafe {
                 llvm_asm!(concat!("msr ", $reg_name, ", $0")
