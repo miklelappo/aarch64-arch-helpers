@@ -12,12 +12,15 @@
 /// AARCH64 cache helpers
 pub mod cache;
 #[macro_use]
+#[rustfmt::skip]
 mod macro_def;
 /// AARCH64 mmu helpers
 pub mod mmu;
 /// AARCH64 system operations helpers
+#[rustfmt::skip]
 pub mod sysop;
 /// AARCH64 system registers helpers
+#[rustfmt::skip]
 pub mod sysreg;
 
 /// Secure Monitor Call causes an exception to EL3.
